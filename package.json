@@ -1,15 +1,11 @@
 {
-  "name": "bot-vendas",
+  "name": "bot-vortex-dev",
   "version": "1.0.0",
-  "description": "Bot de vendas Discord",
   "main": "index.js",
+  "dependencies": {
+    "discord.js": "^14.14.1"
+  },
   "scripts": {
     "start": "node index.js"
-  },
-  "dependencies": {
-    "discord.js": "^14.11.0"
-  },
-  "engines": {
-    "node": "20.x"
   }
 }
