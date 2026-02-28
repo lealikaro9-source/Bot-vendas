@@ -157,4 +157,4 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 // FINAL: Sem aspas para pegar o valor real da variável
-client.login(TOKEN);
+client.login("MTQ3NjU3OTA1MTEyMzc2OTQ1Ng.GGqzV2.adPZhQzi0nIj3lvaGP29vjw5YKsPKG9bvnm8A4");
