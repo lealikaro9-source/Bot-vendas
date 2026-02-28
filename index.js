@@ -186,4 +186,4 @@ client.on('interactionCreate', async (interaction) => {
     }
 });
 
-client.login("MTQ3NjU3OTA1MTEyMzc2OTQ1Ng.GIN3vJ.guUKxjYR_YtVEz1t2ug9s4MwdbIIQ4PvjjVwRA");
+client.login("");
