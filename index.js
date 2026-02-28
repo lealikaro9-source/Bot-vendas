@@ -157,4 +157,4 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 // FINAL: Sem aspas para pegar o valor real da variável
-client.login(TOKEN);
+client.login("TOKEN");
