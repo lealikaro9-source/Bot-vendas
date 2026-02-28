@@ -12,7 +12,7 @@ const client = new Client({
 // ==========================================
 // 🚨 COLOQUE SEU TOKEN ABAIXO (DENTRO DAS ASPAS)
 // ==========================================
-const MEU_TOKEN = "MTQ3NjU3OTA1MTEyMzc2OTQ1Ng.GyO-kW.0teszyUgbxXYCKSGe9p7WTy-q29qjJfd4ETABo"; 
+const MEU_TOKEN = "MTQ3NjU3OTA1MTEyMzc2OTQ1Ng.GDK1GH.MsZBJSURV5qHSRJlWF0pwstmK9cXGohxivEnXw"; 
 
 // Limpeza automática de espaços para evitar erro de TokenInvalid
 const tokenLimpo = MEU_TOKEN.trim();
