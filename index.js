@@ -8,9 +8,9 @@ const {
     StringSelectMenuBuilder,
     ChannelType,
     PermissionFlagsBits
-} = require('discord.js');
+} = require('discord.js'); // Ajustado para require
 
-const client = new Client({
+const client = new Client({ // Ajustado para new Client
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
@@ -19,7 +19,8 @@ const client = new Client({
 });
 
 // ================== CONFIGURAÇÕES ==================
-const TOKEN = 'SEU_TOKEN_AQUI';
+// IMPORTANTE: Deixe SEM ASPAS para o Railway puxar o segredo das Variables
+const TOKEN = process.env.TOKEN; 
 const SEU_ID_ADM = '1395856611658043576';
 const FOTO_VORTEX = 'https://i.imgur.com/8N4N3u8.png';
 
@@ -30,13 +31,12 @@ const TABELA_PIX = {
 };
 
 // ================== BOT ONLINE ==================
-client.once('ready', () => console.log(`✅ Bot Online! Francisco Ikaro Store Pronto.`));
+client.once('ready', () => console.log('✅ Bot Online! Francisco Ikaro Store Pronto.'));
 
 // ================== PAINEL DE VENDAS E TICKETS ==================
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
-    // Painel de venda
     if (message.content === '!painel') {
         const embedLoja = new EmbedBuilder()
             .setColor(0x5865F2)
@@ -51,7 +51,6 @@ client.on('messageCreate', async (message) => {
         await message.channel.send({ embeds: [embedLoja], components: [botaoCompra] });
     }
 
-    // Painel de tickets
     if (message.content === '!painel_ticket') {
         const embedTicket = new EmbedBuilder()
             .setColor(0xFFB400)
@@ -76,8 +75,6 @@ client.on('messageCreate', async (message) => {
 
 // ================== INTERACTIONS ==================
 client.on('interactionCreate', async (interaction) => {
-
-    // Botão de comprar
     if (interaction.isButton() && interaction.customId === 'comprar_bot') {
         const menuPlanos = new ActionRowBuilder().addComponents(
             new StringSelectMenuBuilder()
@@ -92,12 +89,11 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.reply({ content: 'Selecione o plano:', components: [menuPlanos], ephemeral: true });
     }
 
-    // Seleção de plano de venda
     if (interaction.isStringSelectMenu() && interaction.customId === 'selecionar_plano') {
         await interaction.deferReply({ ephemeral: true });
         const valor = interaction.values[0];
         const pixCopiaECola = TABELA_PIX[valor];
-        const nomePlano = valor === "7.00" ? "Semanal" : valor === "19.00" ? "Mensal" : "Trimestral";
+        const nomePlano = valor === "7.00" ? "Semanal" : (valor === "19.00" ? "Mensal" : "Trimestral");
         const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(pixCopiaECola)}`;
 
         const channel = await interaction.guild.channels.create({
@@ -106,6 +102,7 @@ client.on('interactionCreate', async (interaction) => {
             permissionOverwrites: [
                 { id: interaction.guild.id, deny: [PermissionFlagsBits.ViewChannel] },
                 { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
+                { id: SEU_ID_ADM, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
             ],
         });
 
@@ -127,63 +124,37 @@ client.on('interactionCreate', async (interaction) => {
 
         const collector = msgOriginal.createMessageComponentCollector();
         collector.on('collect', async i => {
-            if (i.customId === 'copy_pix') {
-                if (i.user.id !== interaction.user.id) return i.reply({ content: 'Apenas o comprador pode copiar.', ephemeral: true });
+            if (i.customId === 'copy_pix' && i.user.id === interaction.user.id) {
                 await i.reply({ content: `${pixCopiaECola}`, ephemeral: true });
             }
-            if (i.customId === 'cancelar_compra') {
-                if (i.user.id !== interaction.user.id) return i.reply({ content: 'Apenas o comprador pode cancelar.', ephemeral: true });
+            if (i.customId === 'cancelar_compra' && i.user.id === interaction.user.id) {
                 await channel.delete().catch(() => {});
             }
-            if (i.customId === 'confirmar_pagamento') {
-                if (i.user.id !== SEU_ID_ADM) return i.reply({ content: '❌ Apenas o Administrador pode confirmar.', ephemeral: true });
+            if (i.customId === 'confirmar_pagamento' && i.user.id === SEU_ID_ADM) {
                 await msgOriginal.delete().catch(() => {});
-                await channel.send({ content: `✅ **Pagamento confirmado!** Obrigado pelo plano **Bot Completo ${nomePlano}**! 🎉` });
+                await channel.send({ content: `✅ **Pagamento confirmado!** 🎉` });
             }
         });
     }
 
-    // Seleção do ticket
     if (interaction.isStringSelectMenu() && interaction.customId === 'selecionar_ticket') {
-        const valor = interaction.values[0];
-        const nomeCategoria = {
-            suporte: '⚒️ Suporte Técnico',
-            duvida_planos: '💰 Dúvida sobre Planos',
-            problema_pagamento: '📄 Problema com Pagamento',
-            outro: '❓ Outro'
-        }[valor];
-
         const channel = await interaction.guild.channels.create({
             name: `🎫-${interaction.user.username}`,
             type: ChannelType.GuildText,
             permissionOverwrites: [
                 { id: interaction.guild.id, deny: [PermissionFlagsBits.ViewChannel] },
                 { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
+                { id: SEU_ID_ADM, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
             ],
         });
-
-        const botaoCancelar = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId('cancel_ticket').setLabel('Cancelar Ticket').setStyle(ButtonStyle.Danger)
-        );
-
-        await channel.send({
-            content: `${interaction.user}\nCategoria selecionada: **${nomeCategoria}**`,
-            embeds: [new EmbedBuilder()
-                .setTitle('Ticket aberto')
-                .setDescription('Aguarde a resposta de um atendente.')
-                .setColor(0xFFB400)
-            ],
-            components: [botaoCancelar]
-        });
-
+        await channel.send({ content: `${interaction.user} Ticket aberto! Aguarde suporte.` });
         await interaction.reply({ content: `✅ Ticket criado: ${channel}`, ephemeral: true });
     }
 
-    // Cancelar Ticket
     if (interaction.isButton() && interaction.customId === 'cancel_ticket') {
-        if (interaction.user.id !== interaction.user.id) return interaction.reply({ content: 'Apenas o criador do ticket pode cancelar.', ephemeral: true });
         await interaction.channel.delete().catch(() => {});
     }
 });
 
+// FINAL: Sem aspas para pegar o valor real da variável
 client.login("TOKEN");
